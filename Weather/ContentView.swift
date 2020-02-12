@@ -17,9 +17,15 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
-            List(obs.datas) { i in
-                card(name: i.name, url: i.url)
-            }.navigationBarTitle("JSON PArsing")
+            VStack {
+                
+                Text(String(obs.temp)).bold().fontWeight(.heavy)
+                Text(String(obs.weatherDescription))
+                Spacer()
+                Text("Wind speed: " + String(obs.windSpeed))
+                Text("Humidity: " + String(obs.humidity))
+                Text("Fells like: " + String(obs.feelsLike))
+            }
         }
     }
 }
@@ -32,39 +38,30 @@ struct ContentView_Previews: PreviewProvider {
 
 class observer: ObservableObject {
     
-    @Published var datas = [datatype]()
+    @Published var temp = 0
+    @Published var windSpeed = 0
+    @Published var humidity = 0
+    @Published var iconUrl = ""
+    @Published var weatherDescription = ""
+    @Published var feelsLike = 0
+    
+    @Published var img = UIImage()
     
     init() {
-        Alamofire.request("https://api.github.com/users/hadley/orgs").responseData { (data) in
-            
+        Alamofire.request("http://api.weatherstack.com/current?access_key=6da4cdcc62d4d30bdd4a317b7dea6ecf&query=Tomsk").responseData { (data) in
             let json = try! JSON(data: data.data!)
-            for i in json {
-                self.datas.append(datatype(
-                    id: i.1["id"].intValue,
-                    name: i.1["login"].stringValue,
-                    url: i.1["avater_url"].stringValue))
-            }
+            let current = json["current"]
+            
+            self.temp = current["temperature"].intValue
+            self.windSpeed = current["wind_speed"].intValue
+            self.humidity = current["humidity"].intValue
+            self.iconUrl = current["weather_icons"][0].stringValue
+            self.weatherDescription = current["weather_descriptions"][0].stringValue
+            self.feelsLike = current["feelslike"].intValue
+            
+            
         }
-    }
-}
-
-struct datatype: Identifiable {
-    
-    var id: Int
-    var name: String
-    var url: String
-}
-
-struct card: View {
-    
-    var name = ""
-    var url = ""
-    
-    var body: some View {
         
-        HStack {
-            Text("img")
-            Text(name).fontWeight(.heavy)
-        }
+        
     }
 }
