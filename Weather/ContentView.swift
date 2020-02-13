@@ -14,20 +14,25 @@ struct ContentView: View {
     
     @ObservedObject var obs = Observer()
     
-    var cities = ["Tomsk", "Moscow", "London", "Paris", "Novosibirsk"]
+    var cities = ["Tomsk", "Texas", "Moscow", "London", "Paris"]
     @State private var selectedCity = 0
         
     var body: some View {
+        ZStack {
+            obs.isDay.edgesIgnoringSafeArea(.all)
+            
             VStack {
                 Picker("Label", selection: $selectedCity) {
                     ForEach(0 ..< cities.count) { index in
-                        Text(self.cities[index]).tag(index)
+                        Text(self.cities[index])
+                            .tag(index)
+                            .foregroundColor(self.obs.textColor)
                     }
                 }
                     .pickerStyle(WheelPickerStyle()).labelsHidden()
-                        .onAppear {
-                    self.obs.request(city: self.cities[self.selectedCity])
-                }
+                    .onAppear {
+                        self.obs.request(city: self.cities[self.selectedCity])
+                    }
                 Button(action: {
                     self.obs.request(city: self.cities[self.selectedCity])
                 }) {
@@ -35,23 +40,30 @@ struct ContentView: View {
                         .fontWeight(.medium)
                         .padding()
                         .background(Color.gray)
-                        .cornerRadius(40)
+                        .cornerRadius(30)
                         .foregroundColor(.white)
                 }
                 Text(String(obs.query))
                     .font(.title)
                     .fontWeight(.light)
                     .padding()
-                Text(String(obs.weatherDescription))
-                    .font(.system(size: 20))
-                AnimatedImage(url: obs.url).resizable()
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(self.obs.textColor)
+                Text(String(obs.date))
+                    .font(.system(size: 22))
+                    .foregroundColor(self.obs.textColor)
+                AnimatedImage(url: URL(string: obs.icon)).resizable()
                     .frame(width: 120, height: 120)
                     .clipShape(Circle())
                     .shadow(radius: 20)
                 Spacer()
+                Text(String(obs.weatherDescription))
+                    .font(.system(size: 20))
+                    .foregroundColor(self.obs.textColor)
                 Text(String(obs.temp) + " °C")
                     .font(.system(size: 50))
                     .fontWeight(.heavy)
+                    .foregroundColor(self.obs.textColor)
                 Spacer()
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 20) {
@@ -61,6 +73,7 @@ struct ContentView: View {
                         CardView(title: "PRESSURE", count: obs.pressure, addition: "")
                     }
                 }
+            }
         }
     }
 }

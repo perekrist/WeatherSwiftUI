@@ -18,12 +18,13 @@ class Observer: ObservableObject {
     @Published var temp = 10
     @Published var windSpeed = 10
     @Published var humidity = 10
-    var iconUrl = ""
-    @Published var url = URL(string: "")
+    @Published var icon = "https://assets.weatherstack.com/images/wsymbols01_png_64/wsymbol_0001_sunny.png"
     @Published var weatherDescription = "Description"
     @Published var feelsLike = 11
-    @Published var isDay = false
+    @Published var isDay = Color(red: 255 / 255, green: 250 / 255, blue: 200 / 255)
+    @Published var textColor = Color.black
     @Published var pressure = 1000
+    @Published var date = "2020"
     
     @Published var img = UIImage()
     
@@ -39,16 +40,23 @@ class Observer: ObservableObject {
                 let current = json["current"]
                 
                 self.temp = current["temperature"].intValue
+                self.weatherDescription = current["weather_descriptions"][0].stringValue
+                self.date = json["location"]["localtime"].stringValue
+                
                 self.windSpeed = current["wind_speed"].intValue
                 self.humidity = current["humidity"].intValue
-                self.iconUrl = current["weather_icons"][0].stringValue
-                self.weatherDescription = current["weather_descriptions"][0].stringValue
                 self.feelsLike = current["feelslike"].intValue
-                self.url = URL(string: self.iconUrl)
                 self.pressure = current["pressure"].intValue
+                
+                self.icon = current["weather_icons"][0].stringValue
+                
                 if current["is_day"] == "yes" {
-                   self.isDay = true
-                } else { self.isDay = false }
+                    self.isDay = Color(red: 255 / 255, green: 250 / 255, blue: 200 / 255)
+                    self.textColor = Color.black
+                } else {
+                    self.isDay = Color(red: 0 / 255, green: 0 / 255, blue: 50 / 255)
+                    self.textColor = Color.white
+                }
             }
         }
     }
